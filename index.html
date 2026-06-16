@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPA Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="app-name">GPA Calculator</div>
+    <div class="app-sub">Academic performance tracker</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-label">Calculator</div>
+      <div class="nav-item active" onclick="goPage('calculator', this)">
+        <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/></svg>
+        Current semester
+      </div>
+      <div class="nav-item" onclick="goPage('history', this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        History
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Settings</div>
+      <div class="nav-item" onclick="goPage('grading', this)">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Grading scheme
+      </div>
+      <div class="nav-item" onclick="goPage('about', this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        About
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
+      <svg id="theme-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <span id="theme-label">Dark mode</span>
+    </button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="page-title" id="topbar-title">Current semester</span>
+    </div>
+    <div class="topbar-right">
+      <span class="badge-date" id="topbar-date"></span>
+    </div>
+  </div>
+
+  <!-- ── Calculator page ── -->
+  <div class="page active" id="page-calculator">
+    <div class="section-head">
+      <h2>Current semester</h2>
+      <p>Enter your subjects below. Grades update automatically when you calculate.</p>
+    </div>
+
+    <div class="card">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:32%">Subject</th>
+              <th style="width:15%">Credits</th>
+              <th style="width:15%">Marks</th>
+              <th style="width:14%;text-align:center">Grade</th>
+              <th style="width:14%;text-align:center">Points</th>
+              <th style="width:10%"></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="tbl-footer">
+        <button class="add-row-btn" onclick="addRow()">
+          + add subject
+        </button>
+      </div>
+    </div>
+
+    <div class="calc-bar mt-16">
+      <div class="input-field">
+        <label>Previous CGPA</label>
+        <input type="number" step="0.01" id="prevCGPA" placeholder="optional, e.g. 3.40">
+      </div>
+      <div class="input-field">
+        <label>Total past credits</label>
+        <input type="number" id="pastCredits" placeholder="optional, e.g. 60">
+      </div>
+      <div class="flex gap-8 ai-center" style="padding-bottom:1px">
+        <button class="btn btn-primary" onclick="calculate()">Calculate</button>
+        <button class="btn" onclick="saveToHistory()">Save to history</button>
+        <button class="btn btn-danger btn-sm" onclick="resetAll()">Reset</button>
+      </div>
+    </div>
+
+    <div class="stats" id="stats">
+      <div class="stat"><div class="sl">Total credits</div><div class="sv" id="rC">—</div></div>
+      <div class="stat"><div class="sl">Semester GPA</div><div class="sv" id="rG">—</div></div>
+      <div class="stat"><div class="sl">Cumulative CGPA</div><div class="sv" id="rP">—</div></div>
+    </div>
+  </div>
+
+  <!-- ── History page ── -->
+  <div class="page" id="page-history">
+    <div class="section-head flex jc-between ai-center fw gap-8">
+      <div>
+        <h2>History</h2>
+        <p>Saved semester results.</p>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="clearHistory()">Clear all</button>
+    </div>
+    <div class="card" id="history-list"></div>
+  </div>
+
+  <!-- ── Grading scheme page ── -->
+  <div class="page" id="page-grading">
+    <div class="section-head">
+      <h2>Grading scheme</h2>
+      <p>Edit the thresholds, grade letters, and GPA points. Changes apply immediately to calculations.</p>
+    </div>
+
+    <div class="card">
+      <div class="scheme-grid">
+        <div class="scheme-row header">
+          <div class="sh">Min marks (%)</div>
+          <div class="sh">Grade</div>
+          <div class="sh">GPA points</div>
+          <div></div>
+        </div>
+        <div id="scheme-rows"></div>
+      </div>
+      <div class="tbl-footer flex gap-8 ai-center">
+        <button class="add-row-btn" onclick="addSchemeRow()">+ add grade</button>
+        <button class="btn btn-sm btn-primary" style="margin-left:auto" onclick="saveScheme()">Save scheme</button>
+        <button class="btn btn-sm" onclick="resetScheme()">Reset to default</button>
+      </div>
+    </div>
+
+    <div class="mt-16 text2">
+      Grades are matched from highest to lowest minimum marks. The first match wins.
+    </div>
+  </div>
+
+  <!-- ── About page ── -->
+  <div class="page" id="page-about">
+    <div class="section-head">
+      <h2>About</h2>
+    </div>
+    <div class="card" style="padding:24px">
+      <p style="font-size:14px;color:var(--text);margin-bottom:12px;font-weight:600">GPA Calculator v2.0</p>
+      <p class="text2" style="margin-bottom:8px">A clean, offline-capable academic GPA and CGPA tracker. All data stays in your browser — nothing is sent anywhere.</p>
+      <p class="text2" style="margin-bottom:8px">Features: semester GPA, weighted cumulative CGPA, custom grading scheme, save/load history, dark mode.</p>
+      <hr class="div">
+      <p class="text2">Built for NFC and VU students (MTH401 and beyond). Fully responsive.</p>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<div class="toast" id="toast"></div>
+  
+  <script src="script.js"></script>
+</body>
+</html>
